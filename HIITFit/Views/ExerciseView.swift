@@ -39,7 +39,9 @@ struct ExerciseView: View {
     @State private var showSuccess = false
     @Binding var selectedTab: Int
     let index: Int
-    let interval: TimeInterval = 30
+    @State private var timerDone = false
+    @State private var showTimer = false
+
     var lastExercise: Bool {
       index + 1 == Exercise.exercises.count
     }
@@ -63,19 +65,23 @@ struct ExerciseView: View {
                       .foregroundColor(.red)
 
                 }
-                Text(Date().addingTimeInterval(interval), style: .timer)
-                  .font(.system(size: 90))
-
-                HStack(spacing: 150) {
+            
+                HStack(spacing: 150) { // Move buttons above TimerView
                     
-                    Button("Start Exercise") {}
+                    Button("Start Exercise") {
+                        showTimer.toggle()
+                    }
                     Button("Done") {
+                        timerDone = false
+                        showTimer.toggle()
+                        
                       if lastExercise {
                         showSuccess.toggle()
                       } else {
                         selectedTab += 1
                       }
                     }
+                    .disabled(!timerDone)
                     .sheet(isPresented: $showSuccess) {
                         SuccessView(selectedTab: $selectedTab)
                     }
@@ -83,8 +89,12 @@ struct ExerciseView: View {
                 }
                   .font(.title3)
                   .padding()
+                if showTimer {
+                  TimerView(timerDone: $timerDone)
+                }
+                Spacer()
 
-                RatingView(rating: $rating)
+                RatingView(rating: $rating) // Move RatingView below Spacer
                   .padding()
                 Spacer()
 
